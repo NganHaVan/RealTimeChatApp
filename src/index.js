@@ -13,15 +13,16 @@ server.listen(port, () => {
 const publicDirectory = path.join(__dirname, "../public");
 app.use(express.static(publicDirectory));
 
-// server (emit) => client (receive): countUpdated
-// client (emit) => server (receive): increment
+// server (emit) => client (receive): "message"->welcome new user
 
-let count = 0;
 io.on("connection", function(socket) {
-  socket.emit("countUpdated", count);
-  socket.on("increment", () => {
-    count++;
-    // socket.emit("countUpdated", count); => Emit the event to a particular connection. Which means that only the sender receive this event
-    io.emit("countUpdated", count); // => All the socketes are updated. The event is transmitted to all connections
+  socket.emit("message", "Welcome to Chat App");
+  socket.broadcast.emit("message", "A new user has joined");
+  // Client(emit) => Server(receive): "sendMessage": send message to all connected clients
+  socket.on("sendMessage", message => {
+    io.emit("message", message);
+  });
+  socket.on("disconnect", () => {
+    io.emit("message", "A user has left");
   });
 });
