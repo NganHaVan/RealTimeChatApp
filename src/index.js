@@ -4,6 +4,7 @@ const server = require("http").Server(app);
 const io = require("socket.io")(server);
 const path = require("path");
 const Filter = require("bad-words");
+const { generateMessage } = require("./utils/messages");
 
 const port = process.env.PORT || 3000;
 // WARNING: app.listen(80) will NOT work here!
@@ -17,8 +18,13 @@ app.use(express.static(publicDirectory));
 // server (emit) => client (receive): "message"->welcome new user
 
 io.on("connection", function(socket) {
-  socket.emit("message", "Welcome to Chat App");
-  socket.broadcast.emit("message", "A new user has joined");
+  socket.on("join", ({ username, room }) => {
+    socket.join(room);
+    socket.emit("message", generateMessage("Welcome to Chat App"));
+    socket.broadcast
+      .to(room)
+      .emit("message", generateMessage(`${username} has joined`));
+  });
 
   // Client(emit) => Server(receive): "sendMessage": send message to all connected clients
   // NOTE: emiter(a cb as third param) -> receiver(value, cb: the cb must be invoked so that the emiter can receive the message) -- acknowledgement --> emiter
@@ -28,7 +34,7 @@ io.on("connection", function(socket) {
     if (filter.isProfane(message)) {
       return cb("Profanity is not allowed");
     }
-    io.emit("message", message);
+    io.emit("message", generateMessage(message));
     cb();
   });
 
@@ -36,13 +42,15 @@ io.on("connection", function(socket) {
   // NOTE: emiter(a cb as third param) -> receiver(value, cb: the cb must be invoked so that the emiter can receive the message) -- acknowledgement --> emiter
   socket.on("sendLocation", (location, cb) => {
     io.emit(
-      "message",
-      `Location: https://www.google.com/maps?q=${location.latitude},${location.longitude}`
+      "locationMessage",
+      generateMessage(
+        `https://www.google.com/maps?q=${location.latitude},${location.longitude}`
+      )
     );
     cb();
   });
 
   socket.on("disconnect", () => {
-    io.emit("message", "A user has left");
+    io.emit("message", generateMessage("A user has left"));
   });
 });
