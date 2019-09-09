@@ -18,13 +18,28 @@ const { username, room } = Qs.parse(location.search, {
   ignoreQueryPrefix: true
 });
 
+const autoscroll = () => {
+  const $latestMessage = $messages.lastElementChild;
+  const latestMessageMargin = parseInt(
+    getComputedStyle($latestMessage).marginBottom
+  );
+  const latestMessageHeight = $latestMessage.offsetHeight + latestMessageMargin;
+  const visibleHeight = $messages.offsetHeight;
+  const containerHeight = $messages.scrollHeight;
+  // How far I scroll?
+  const scrollOffset = $messages.scrollTop + visibleHeight;
+  if (containerHeight - latestMessageHeight <= scrollOffset) {
+    $messages.scrollTop = $messages.scrollHeight;
+  }
+};
+
 socket.on("message", message => {
   const messageElement = document.querySelector(".message");
   let className = "";
   if (/^HaVan/.test(message.username)) {
     className = "message center";
   } else {
-    if (message.username === username.trim().toLowerCase()) {
+    if (message.username === username) {
       className = "message right";
     } else {
       className = "message";
@@ -37,19 +52,17 @@ socket.on("message", message => {
     className
   });
   $messages.insertAdjacentHTML("beforeend", html);
+  autoscroll();
 });
 
 socket.on("locationMessage", locationURL => {
   // const html = Mustache.render(locationMessageTemplate, { locationURL });
   let className = "";
-  if (/^HaVan/.test(message.username)) {
-    className = "message center";
+
+  if (locationURL.username === username) {
+    className = "message right";
   } else {
-    if (message.username === username.trim().toLowerCase()) {
-      className = "message right";
-    } else {
-      className = "message";
-    }
+    className = "message";
   }
   const html = Mustache.render(locationMessageTemplate, {
     username: locationURL.username,
@@ -58,6 +71,7 @@ socket.on("locationMessage", locationURL => {
     className
   });
   $messages.insertAdjacentHTML("beforeend", html);
+  autoscroll();
 });
 
 socket.on("roomData", ({ users, rrom }) => {
