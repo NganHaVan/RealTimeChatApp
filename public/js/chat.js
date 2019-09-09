@@ -11,7 +11,7 @@ const messageTemplate = document.getElementById("message-template").innerHTML;
 const locationMessageTemplate = document.getElementById(
   "location-message-template"
 ).innerHTML;
-console.log(document.getElementById("location-message-template"));
+const sidebarTemplate = document.getElementById("sidebar-template").innerHTML;
 
 // Options
 const { username, room } = Qs.parse(location.search, {
@@ -19,21 +19,50 @@ const { username, room } = Qs.parse(location.search, {
 });
 
 socket.on("message", message => {
-  console.log(message);
+  const messageElement = document.querySelector(".message");
+  let className = "";
+  if (/^HaVan/.test(message.username)) {
+    className = "message center";
+  } else {
+    if (message.username === username.trim().toLowerCase()) {
+      className = "message right";
+    } else {
+      className = "message";
+    }
+  }
   const html = Mustache.render(messageTemplate, {
+    username: message.username,
     message: message.text,
-    createdAt: moment(message.createdAt).format("HH:mm")
+    createdAt: moment(message.createdAt).format("HH:mm"),
+    className
   });
   $messages.insertAdjacentHTML("beforeend", html);
 });
 
 socket.on("locationMessage", locationURL => {
   // const html = Mustache.render(locationMessageTemplate, { locationURL });
+  let className = "";
+  if (/^HaVan/.test(message.username)) {
+    className = "message center";
+  } else {
+    if (message.username === username.trim().toLowerCase()) {
+      className = "message right";
+    } else {
+      className = "message";
+    }
+  }
   const html = Mustache.render(locationMessageTemplate, {
+    username: locationURL.username,
     locationURL: locationURL.text,
-    createdAt: moment(locationURL.createdAt).format("HH:mm")
+    createdAt: moment(locationURL.createdAt).format("HH:mm"),
+    className
   });
   $messages.insertAdjacentHTML("beforeend", html);
+});
+
+socket.on("roomData", ({ users, rrom }) => {
+  const html = Mustache.render(sidebarTemplate, { users, room });
+  document.getElementById("sidebar").innerHTML = html;
 });
 
 $messageForm.addEventListener("submit", e => {
@@ -75,4 +104,9 @@ $locationButton.addEventListener("click", () => {
   });
 });
 
-socket.emit("join", { username, room });
+socket.emit("join", { username, room }, error => {
+  if (error) {
+    alert(error);
+    location.href = "/";
+  }
+});
