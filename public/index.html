@@ -7,20 +7,27 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   <link rel="icon" href="/img/favicon.png" />
   <link rel="stylesheet" href="/css/styles.min.css" />
-  <title>Chat App</title>
+  <title>Fill in</title>
 </head>
 
 <body>
-  <div class="centered-form">
-    <div class="centered-form__box">
-      <h1>Create user and chat room</h1>
-      <form action="/chat.html">
-        <label for="username">Display name</label>
-        <input type="text" name="username" placeholder="Display name" required>
-        <label for="room">Room</label>
-        <input type="text" name="room" placeholder="Room name" required>
-        <button>Join</button>
-      </form>
+  <div class="main">
+    <div class="intro">
+      <h4>To enjoy this app, please create username and room name. You can have a chat with your friend as long as
+        he/she
+        fills in the same room name</h4>
+    </div>
+    <div class="centered-form">
+      <div class="centered-form__box">
+        <h1>Create user and chat room</h1>
+        <form action="/chat.html">
+          <label for="username">Display name</label>
+          <input type="text" name="username" placeholder="Display name" required>
+          <label for="room">Room</label>
+          <input type="text" name="room" placeholder="Room name" required>
+          <button>Join</button>
+        </form>
+      </div>
     </div>
   </div>
 </body>

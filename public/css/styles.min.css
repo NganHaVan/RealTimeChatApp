@@ -54,13 +54,25 @@ button:disabled {
   background: #7c5cbf94
 }
 
-.centered-form {
-  background: #333744;
+.main {
+  background-color: #333744;
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.intro {
+  color: #fff;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.centered-form {
   display: flex;
   justify-content: center;
-  align-items: center
+  align-items: center;
 }
 
 .centered-form__box {
